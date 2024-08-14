@@ -1,0 +1,112 @@
+#include <iostream>
+#include <vector>
+#include <limits> // for clearing input buffer
+
+using namespace std;
+
+bool hasWon(vector<vector<char>>& board, char player) {
+    // Check rows
+    for (int row = 0; row < board.size(); row++) {
+        if (board[row][0] == player && board[row][1] == player && board[row][2] == player) {
+            return true;
+        }
+    }
+    // Check columns
+    for (int col = 0; col < board[0].size(); col++) {
+        if (board[0][col] == player && board[1][col] == player && board[2][col] == player) {
+            return true;
+        }
+    }
+    // Check diagonals
+    if (board[0][0] == player && board[1][1] == player && board[2][2] == player) {
+        return true;
+    }
+    if (board[0][2] == player && board[1][1] == player && board[2][0] == player) {
+        return true;
+    }
+    return false;
+}
+
+void printBoard(const vector<vector<char>>& board) {
+    for (int row = 0; row < board.size(); row++) {
+        for (int col = 0; col < board[row].size(); col++) {
+            cout << " " << board[row][col] << " ";
+            if (col < board[row].size() - 1) cout << "|";
+        }
+        cout << endl;
+        if (row < board.size() - 1) cout << "---|---|---" << endl;
+    }
+}
+
+void resetBoard(vector<vector<char>>& board) {
+    for (int row = 0; row < board.size(); row++) {
+        for (int col = 0; col < board[row].size(); col++) {
+            board[row][col] = ' ';
+        }
+    }
+}
+
+bool validInput(int row, int col, const vector<vector<char>>& board) {
+    return (row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ');
+}
+
+void clearInputBuffer() {
+    cin.clear(); // Clear the error flag
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard the rest of the line
+}
+
+bool playAgain() {
+    char choice;
+    cout << "Do you want to play again? (y/n): ";
+    cin >> choice;
+    return (choice == 'y' || choice == 'Y');
+}
+
+void playGame() {
+    vector<vector<char>> board(3, vector<char>(3, ' '));
+    char player = 'X';
+    bool gameOver = false;
+    int moves = 0;
+
+    while (!gameOver && moves < 9) {
+        printBoard(board);
+        int row, col;
+
+        while (true) {
+            cout << "Player " << player << ", enter your move (row and column): ";
+            cin >> row >> col;
+
+            if (cin.fail()) { // Check if input is valid
+                clearInputBuffer();
+                cout << "Invalid input. Please enter numbers between 0 and 2." << endl;
+            } else if (!validInput(row, col, board)) {
+                cout << "Invalid move. Please enter a valid row and column." << endl;
+            } else {
+                break;
+            }
+        }
+
+        board[row][col] = player;
+        moves++;
+        gameOver = hasWon(board, player);
+
+        if (gameOver) {
+            printBoard(board);
+            cout << "Player " << player << " has won!" << endl;
+        } else if (moves == 9) {
+            printBoard(board);
+            cout << "The game is a draw!" << endl;
+        } else {
+            player = (player == 'X') ? 'O' : 'X';
+        }
+    }
+}
+
+int main() {
+    do {
+        playGame();
+    } while (playAgain());
+
+    cout << "Thanks for playing!" << endl;
+    return 0;
+}
